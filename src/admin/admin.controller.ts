@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { adminService } from "./admin.service";
 
-const listCurrencyChain = async (req: Request, res: Response): Promise<any> => {
+const listCurrencyChain = async (req: Request, res: Response) => {
   const result = await adminService.listCurrencyChain();
   if (result.success) {
     return res.status(200).json({ message: result.message, data: result.data });

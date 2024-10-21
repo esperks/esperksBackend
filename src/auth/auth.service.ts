@@ -17,6 +17,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { Roles } from "../enum/auth.enum";
 import { LoginValidation } from "./validations/login.validation";
 import { AdminModel } from "./models/admin.model";
+import { mailerService } from "../mailer/mailer.service";
 
 const usernameExists = async (username: string) => {
   return await UserModel.exists({ username });
@@ -72,6 +73,14 @@ const registerUser = async (data: RegisterValidation) => {
           { $inc: { redeemCount: 1 }, $push: { redeemedBy: user._id } }
         );
       }
+      await mailerService.sendMail({
+        to: user.email,
+        subject: "Email Verification",
+        text: `Please verify your rmail, OTP is ${await generateOtp(
+          createdUser.id,
+          OtpTypes.EMAIL_VERIFY
+        )}`,
+      });
       return {
         success: true,
         message: "User registered successfully. Please verify your email",

@@ -5,7 +5,7 @@ import { adminController } from "./admin.controller";
 const router = express.Router();
 
 router.get(
-  "currency-chain",
+  "/currency-chain",
   AdminAuthorization,
-  adminController.listCurrencyChain
+  adminController.listCurrencyChain as any
 );
