@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
+    "serve": "ts-node src/server.ts",
     "build": "tsc",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts"
   },
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
     "bcrypt-ts": "^5.0.2",
     "cors": "^2.8.5",
     "express": "^4.21.1",

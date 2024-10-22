@@ -9,3 +9,5 @@ const router = express.Router();
 //   AdminAuthorization,
 //   adminController.listCurrencyChain as any
 // );
+
+export default router;
