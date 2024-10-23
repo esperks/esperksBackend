@@ -13,6 +13,7 @@ const AdminSchema = new Schema({
   },
   phone: {
     type: String,
+    default: "",
   },
   createdAt: {
     type: Date,

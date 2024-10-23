@@ -66,6 +66,7 @@ export const generateOtp = async (user: string, type: string) => {
     otp: otp.toString(),
     type,
   });
+  return otp;
 };
 
 export const generateReferralCode = async (): Promise<string> => {

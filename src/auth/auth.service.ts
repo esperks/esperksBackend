@@ -73,13 +73,11 @@ const registerUser = async (data: RegisterValidation) => {
           { $inc: { redeemCount: 1 }, $push: { redeemedBy: user._id } }
         );
       }
+      const otp = await generateOtp(createdUser.id, OtpTypes.EMAIL_VERIFY);
       await mailerService.sendMail({
         to: user.email,
         subject: "Email Verification",
-        text: `Please verify your rmail, OTP is ${await generateOtp(
-          createdUser.id,
-          OtpTypes.EMAIL_VERIFY
-        )}`,
+        text: `Please verify your rmail, OTP is ${otp}`,
       });
       return {
         success: true,
@@ -156,13 +154,18 @@ const verifyOtp = async (data: OtpValidation) => {
 
 const sendOtp = async (data: OtpValidation) => {
   try {
-    const userExists = await UserModel.exists({
+    const user = await UserModel.findOne({
       _id: new mongoose.Types.ObjectId(data.user),
     });
-    if (!userExists) {
+    if (!user) {
       return { success: false, message: "User does not exist." };
     } else {
-      await generateOtp(data.user, data.type);
+      const otp = await generateOtp(data.user, data.type);
+      await mailerService.sendMail({
+        to: user.email,
+        subject: "Verify OTP",
+        text: `The verification OTP is ${otp}. Please do not share it with anyone.`,
+      });
       return { success: true, message: "OTP sent successfully." };
     }
   } catch (error) {
