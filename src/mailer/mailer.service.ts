@@ -34,8 +34,8 @@ const transporter = nodemailer.createTransport(
     host: "live.smtp.zoho.in",
     port: 587,
     auth: {
-      user: "alerts@esperks.com",
-      pass: "kmuBFeJCnpdD",
+      user: process.env.email_user,
+      pass: process.env.email_password,
     },
   }
 );
