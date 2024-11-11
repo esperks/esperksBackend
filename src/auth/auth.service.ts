@@ -20,15 +20,30 @@ import { AdminModel } from "./models/admin.model";
 import { mailerService } from "../mailer/mailer.service";
 
 const usernameExists = async (username: string) => {
-  return await UserModel.exists({ username });
+  const exists = await UserModel.exists({ username });
+  if (exists) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
-const referralExists = async (referral: string) => {
-  return await UserModel.exists({ referral });
+const referralExists = async (code: string) => {
+  const exists = await ReferralModel.exists({ code });
+  if (exists) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 const emailExists = async (email: string) => {
-  return await UserModel.exists({ email });
+  const exists = await UserModel.exists({ email });
+  if (exists) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 const registerUser = async (data: RegisterValidation) => {
@@ -74,11 +89,11 @@ const registerUser = async (data: RegisterValidation) => {
         );
       }
       const otp = await generateOtp(createdUser.id, OtpTypes.EMAIL_VERIFY);
-      await mailerService.sendMail({
-        to: user.email,
-        subject: "Email Verification",
-        text: `Please verify your rmail, OTP is ${otp}`,
-      });
+      // await mailerService.sendMail({
+      //   to: user.email,
+      //   subject: "Email Verification",
+      //   text: `Please verify your rmail, OTP is ${otp}`,
+      // });
       return {
         success: true,
         message: "User registered successfully. Please verify your email",
@@ -86,6 +101,7 @@ const registerUser = async (data: RegisterValidation) => {
       };
     }
   } catch (error) {
+    console.error("Error in registerUser", error);
     return {
       success: false,
       message: "Something went wrong. Please try again later.",

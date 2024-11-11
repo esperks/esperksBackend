@@ -50,7 +50,8 @@ export const verifyJwt = async (token: string) => {
 };
 
 export const generateOtp = async (user: string, type: string) => {
-  const otp = Math.floor(100000 + Math.random() * 900000);
+  // const otp = Math.floor(100000 + Math.random() * 900000);
+  const otp = `1111`;
   const otpExists = await OtpModel.findOne({
     user: new mongoose.Types.ObjectId(user),
     type,

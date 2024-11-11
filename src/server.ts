@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/", (req, res) => {
-  res.send("Hello, TypeScript + Node.js + Express!");
+  res.send("Hello, This is ESPERK!!");
 });
 
 //Routes

@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 export class SeederService {
   async seedAdmin() {
     console.log("Seeding admin...");
+    console.log("admin email...", process.env.ADMIN_EMAIL);
     const foundAdmin = await AdminModel.findOne({
       email: process.env.ADMIN_EMAIL,
     });

@@ -1,17 +1,44 @@
+import { MailtrapTransport } from "mailtrap";
 import nodemailer from "nodemailer";
 import { MailOptions } from "nodemailer/lib/sendmail-transport";
 
 // Create a transporter object
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+// const transporter = nodemailer.createTransport(
+//     {
+//     // service: "gmail",
+//     service: ""
+//     host: "smtp.gmail.com",
+//     port: 465,
+//     secure: true,
+//     auth: {
+//       user: process.env.EMAIL_USER,
+//       pass: process.env.EMAIL_PASS,
+//     },
+//   }
+//   // MailtrapTransport({
+//   //   token: process.env.MAILTRAP_TOKEN || "",
+//   //   accountId: ,
+//   //   testInboxId
+//   // })
+// );
+const transporter = nodemailer.createTransport(
+  //   {
+  //   host: "live.smtp.mailtrap.io",
+  //   port: 587,
+  //   auth: {
+  //     user: "api",
+  //     pass: "6a8db62e73d539360939edf82a7d9a8c",
+  //   },
+  // }
+  {
+    host: "live.smtp.zoho.in",
+    port: 587,
+    auth: {
+      user: "alerts@esperks.com",
+      pass: "kmuBFeJCnpdD",
+    },
+  }
+);
 
 // Configure the mailoptions object
 // const mailOptions = {
@@ -35,6 +62,7 @@ const sendMail = async (data: {
   subject: string;
   text: string;
 }) => {
+  console.log("Sending email from", process.env.EMAIL_USER);
   const mailOptions: MailOptions = {
     from: process.env.EMAIL_USER,
     to: data.to,
