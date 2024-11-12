@@ -1,14 +1,12 @@
 import { body } from "express-validator";
 import { OtpTypes } from "../../common/enum.common";
 
-export const otpValidation = [
+export const sendOtpValidation = [
   body("user").isString().isLength({ min: 2 }),
-  body("otp").isString().isLength({ min: 3, max: 6 }),
   body("type").isString().isIn(Object.values(OtpTypes)),
 ];
 
-export class OtpValidation {
+export class SendOtpValidation {
   user!: string;
-  otp!: string;
   type!: string;
 }

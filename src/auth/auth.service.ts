@@ -18,6 +18,7 @@ import { Roles } from "../enum/auth.enum";
 import { LoginValidation } from "./validations/login.validation";
 import { AdminModel } from "./models/admin.model";
 import { mailerService } from "../mailer/mailer.service";
+import { SendOtpValidation } from "./validations/sendOtp.validation";
 
 const usernameExists = async (username: string) => {
   const exists = await UserModel.exists({ username });
@@ -168,7 +169,7 @@ const verifyOtp = async (data: OtpValidation) => {
   }
 };
 
-const sendOtp = async (data: OtpValidation) => {
+const sendOtp = async (data: SendOtpValidation) => {
   try {
     const user = await UserModel.findOne({
       _id: new mongoose.Types.ObjectId(data.user),
@@ -198,12 +199,7 @@ const forgotPasswordEmail = async (data: { email: string }) => {
     if (!user) {
       return { success: false, message: "User does not exist." };
     } else {
-      const otp = Math.floor(100000 + Math.random() * 900000);
-      const newOtp = new OtpModel();
-      newOtp.user = user._id;
-      newOtp.otp = otp.toString();
-      newOtp.type = OtpTypes.FORGOT_PASSWORD;
-      await newOtp.save();
+      await generateOtp(user.id, OtpTypes.FORGOT_PASSWORD);
       return { success: true, message: "Otp sent to the email." };
     }
   } catch (error) {
@@ -216,7 +212,7 @@ const forgotPasswordEmail = async (data: { email: string }) => {
 
 const changePassword = async (data: ChangePasswordValidation) => {
   try {
-    const validToken = await verifyJwt(data.token);
+    const validToken: any = await verifyJwt(data.token);
     if (!validToken.success) {
       return { success: false, message: "Invalid token." };
     } else {
@@ -227,6 +223,13 @@ const changePassword = async (data: ChangePasswordValidation) => {
       if (!user) {
         return { success: false, message: "User does not exist." };
       } else {
+        const oldPasswordMatch = await bcrypt.compare(
+          data.oldPassword,
+          user.password
+        );
+        if (!oldPasswordMatch) {
+          return { success: false, message: "Invalid old password." };
+        }
         const salt = process.env.BCRYPT_SALT || "10";
         const newPassword = await bcrypt.hash(data.newPassword, parseInt(salt));
         await UserModel.updateOne({ _id: user._id }, { password: newPassword });
