@@ -228,7 +228,7 @@ const forgotPasswordEmail = async (data: { email: string }) => {
       return { success: false, message: "User does not exist." };
     } else {
       await generateOtp(user.id, OtpTypes.FORGOT_PASSWORD);
-      return { success: true, message: "Otp sent to the email." };
+      return { success: true, message: "Otp sent to the email.", id: user.id };
     }
   } catch (error) {
     return {

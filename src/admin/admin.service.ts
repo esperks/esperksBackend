@@ -260,7 +260,6 @@ const toggleDepositRequestStatus = async (
 
 const distributeCommission = async (percentage: number) => {
   try {
-
   } catch (error) {
     console.error(error);
     return {
@@ -275,6 +274,6 @@ export const adminService = {
   createCurrencyChain,
   listCurrencyChain,
   listDepositRequests,
-    removeAddressFromChain,
-    toggleDepositRequestStatus,
+  removeAddressFromChain,
+  toggleDepositRequestStatus,
 };

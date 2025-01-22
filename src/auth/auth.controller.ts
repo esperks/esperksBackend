@@ -62,7 +62,7 @@ const forgotPasswordEmail = async (
 ): Promise<any> => {
   const result = await authService.forgotPasswordEmail(req.body);
   if (result.success) {
-    return res.status(200).json({ message: result.message });
+    return res.status(200).json({ message: result.message, id: result.id });
   } else {
     return res.status(400).json({ message: result.message });
   }
@@ -92,13 +92,11 @@ const changePassword = async (req: Request, res: Response): Promise<any> => {
 const userLogin = async (req: Request, res: Response): Promise<any> => {
   const result = await authService.userLogin(req.body);
   if (result.success) {
-    return res
-      .status(200)
-      .json({
-        message: result.message,
-        token: result.token,
-        data: result.data,
-      });
+    return res.status(200).json({
+      message: result.message,
+      token: result.token,
+      data: result.data,
+    });
   } else {
     return res
       .status(400)
