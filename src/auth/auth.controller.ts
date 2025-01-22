@@ -74,7 +74,9 @@ const forgotPasswordOtp = async (req: Request, res: Response): Promise<any> => {
   }
   const result = await authService.verifyOtp(req.body);
   if (result.success) {
-    return res.status(200).json({ message: result.message });
+    return res
+      .status(200)
+      .json({ message: result.message, token: result.token ?? "" });
   } else {
     return res.status(400).json({ message: result.message });
   }
