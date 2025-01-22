@@ -5,7 +5,6 @@ const WalletSchema = new Schema({
   address: {
     type: String,
     unique: true,
-    required: true,
   },
   user: {
     type: mongoose.Types.ObjectId,
@@ -30,3 +29,14 @@ const WalletSchema = new Schema({
     enum: Object.values(WalletTypes),
   },
 });
+
+WalletSchema.pre("save", function (next) {
+  if (this.isNew) {
+    this.balance = 0;
+    this.lockedBalance = 0;
+  }
+  const identifier = this.type === WalletTypes.EARNING ? "EW" : "IW";
+  this.address = `${identifier}-${Date.now()}`;
+  next();
+});
+export const WalletModel = mongoose.model("Wallet", WalletSchema);

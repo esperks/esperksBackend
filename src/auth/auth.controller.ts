@@ -94,9 +94,15 @@ const userLogin = async (req: Request, res: Response): Promise<any> => {
   if (result.success) {
     return res
       .status(200)
-      .json({ message: result.message, token: result.token });
+      .json({
+        message: result.message,
+        token: result.token,
+        data: result.data,
+      });
   } else {
-    return res.status(400).json({ message: result.message });
+    return res
+      .status(400)
+      .json({ message: result.message, id: result.id ?? "" });
   }
 };
 

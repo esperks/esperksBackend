@@ -19,3 +19,14 @@ export const WalletTypes = {
   INVESTMENT: "investment",
   EARNING: "earning",
 };
+
+export const RequestType = {
+  DEPOSIT: "deposit",
+  WITHDRAWAL: "withdrawal",
+};
+
+export const RequestStatus = {
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+}

@@ -37,9 +37,20 @@ const userSchema = new Schema({
   phone: {
     type: String,
   },
+  profileImage: {
+    type: String,
+  },
   referral: {
     type: mongoose.Types.ObjectId,
     ref: "Referral",
+  },
+  earningWallet: {
+    type: mongoose.Types.ObjectId,
+    ref: "Wallet",
+  },
+  investmentWallet: {
+    type: mongoose.Types.ObjectId,
+    ref: "Wallet",
   },
 });
 

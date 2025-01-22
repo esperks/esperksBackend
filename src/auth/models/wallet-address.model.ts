@@ -1,13 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
 const WalletAddressSchema = new Schema({
+  deleted: {
+    type: Boolean,
+    default: false,
+  },
   address: {
     type: String,
     unique: true,
     required: true,
   },
   currencyChain: {
-    type: new mongoose.Types.ObjectId(),
+    type: mongoose.Types.ObjectId,
     ref: "CurrencyChain",
   },
   createdAt: {

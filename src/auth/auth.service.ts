@@ -5,7 +5,7 @@ import { OtpValidation } from "./validations/otpVerify.validation";
 import { RegisterValidation } from "./validations/register.validation";
 import * as bcrypt from "bcrypt";
 import { OtpModel } from "./models/otp.model";
-import { OtpTypes } from "../common/enum.common";
+import { OtpTypes, TokenTypes, WalletTypes } from "../common/enum.common";
 import { ChangePasswordValidation } from "./validations/changePassword.validation";
 import {
   generateOtp,
@@ -19,6 +19,7 @@ import { LoginValidation } from "./validations/login.validation";
 import { AdminModel } from "./models/admin.model";
 import { mailerService } from "../mailer/mailer.service";
 import { SendOtpValidation } from "./validations/sendOtp.validation";
+import { WalletModel } from "../user/models/wallet.model";
 
 const usernameExists = async (username: string) => {
   const exists = await UserModel.exists({ username });
@@ -89,12 +90,28 @@ const registerUser = async (data: RegisterValidation) => {
           { $inc: { redeemCount: 1 }, $push: { redeemedBy: user._id } }
         );
       }
+      const investmentWallet = await WalletModel.create({
+        user: createdUser._id,
+        type: WalletTypes.INVESTMENT,
+      });
+      const earningWallet = await WalletModel.create({
+        user: createdUser._id,
+        type: WalletTypes.EARNING,
+      });
+      await UserModel.updateOne(
+        { _id: createdUser._id },
+        {
+          investmentWallet: investmentWallet._id,
+          earningWallet: earningWallet._id,
+        }
+      );
       const otp = await generateOtp(createdUser.id, OtpTypes.EMAIL_VERIFY);
       // await mailerService.sendMail({
       //   to: user.email,
       //   subject: "Email Verification",
       //   text: `Please verify your rmail, OTP is ${otp}`,
       // });
+      console.log("OTP:", otp);
       return {
         success: true,
         message: "User registered successfully. Please verify your email",
@@ -128,40 +145,51 @@ const verifyOtp = async (data: OtpValidation) => {
         if (otpDoc.otp !== data.otp) {
           return { success: false, message: "Invalid OTP." };
         } else {
-          await OtpModel.deleteOne({
-            user: new mongoose.Types.ObjectId(data.user),
-            type: data.type,
-          });
-          if (
-            [OtpTypes.FORGOT_PASSWORD, OtpTypes.EMAIL_VERIFY].includes(
-              data.type
-            )
-          ) {
-            const token = await signJwt(data.user, Roles.USER, data.type);
-            return {
-              success: true,
-              message: "OTP verified successfully.",
-              token,
-            };
-          }
           if (data.type == OtpTypes.EMAIL_VERIFY) {
             const referralExists = await ReferralModel.exists({
               user: new mongoose.Types.ObjectId(data.user),
             });
+            let updateObj: any = {
+              isEmailVerified: true,
+            };
             if (!referralExists) {
               const code = await generateReferralCode();
               const createdReferral = await ReferralModel.create({
                 user: new mongoose.Types.ObjectId(data.user),
                 code,
               });
-              await UserModel.updateOne({ referral: createdReferral._id });
+              updateObj.referral = createdReferral._id;
             }
+            await UserModel.updateOne(
+              {
+                _id: new mongoose.Types.ObjectId(data.user),
+              },
+              {
+                $set: updateObj,
+              }
+            );
           }
-          return { success: true, message: "OTP verified successfully." };
+          const token = await signJwt(
+            data.user,
+            Roles.USER,
+            data.type == OtpTypes.FORGOT_PASSWORD
+              ? TokenTypes.FORGOT_PASSWORD
+              : TokenTypes.ACCESS
+          );
+          await OtpModel.deleteOne({
+            user: new mongoose.Types.ObjectId(data.user),
+            type: data.type,
+          });
+          return {
+            success: true,
+            message: "OTP verified successfully.",
+            token,
+          };
         }
       }
     }
   } catch (error) {
+    console.error("Error in verifyOtp", error);
     return {
       success: false,
       message: "Something went wrong. Please try again later.",
@@ -178,11 +206,11 @@ const sendOtp = async (data: SendOtpValidation) => {
       return { success: false, message: "User does not exist." };
     } else {
       const otp = await generateOtp(data.user, data.type);
-      await mailerService.sendMail({
-        to: user.email,
-        subject: "Verify OTP",
-        text: `The verification OTP is ${otp}. Please do not share it with anyone.`,
-      });
+      // await mailerService.sendMail({
+      //   to: user.email,
+      //   subject: "Verify OTP",
+      //   text: `The verification OTP is ${otp}. Please do not share it with anyone.`,
+      // });
       return { success: true, message: "OTP sent successfully." };
     }
   } catch (error) {
@@ -257,13 +285,27 @@ const userLogin = async (data: LoginValidation) => {
         return { success: false, message: "Invalid password." };
       } else {
         if (!user.isEmailVerified) {
+          await generateOtp(user.id, OtpTypes.EMAIL_VERIFY);
           return {
             success: false,
+            id: user.id,
             message: "Otp sent to the email. Please verify to login.",
           };
         }
-        const token = await signJwt(user.id, Roles.USER, "");
-        return { success: true, message: "Login successful.", token };
+        const token = await signJwt(user.id, Roles.USER, TokenTypes.ACCESS);
+        return {
+          success: true,
+          message: "Login successful.",
+          token,
+          data: {
+            email: user.email,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+            profileImage: user.profileImage ?? "",
+          },
+        };
       }
     }
   } catch (error) {

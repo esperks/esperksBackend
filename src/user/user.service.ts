@@ -1,6 +1,12 @@
+import mongoose from "mongoose";
 import { generateReferralCode } from "../auth/helpers/auth.helper";
+// import { CurrencyChainModel } from "../auth/models/currency-chain.model";
 import { ReferralModel } from "../auth/models/referral.model";
+import { WalletAddressModel } from "../auth/models/wallet-address.model";
+import { RequestType, WalletTypes } from "../common/enum.common";
 import { UserModel } from "./models/user.model";
+import { WalletModel } from "./models/wallet.model";
+import { RequestModel } from "./models/request.model";
 
 const getReferralCode = async (userId: string) => {
   const user = await UserModel.findById(userId);
@@ -21,6 +27,66 @@ const getReferralCode = async (userId: string) => {
   }
 };
 
+const getWalletAddress = async (userId: string, identifier: string) => {
+  const wallet = await WalletModel.findOne({ user: userId, type: identifier });
+  if (!wallet) {
+    return { success: false, message: "Wallet does not exist." };
+  } else {
+    return { success: true, address: wallet.address };
+  }
+};
+
+// const createDepositRequest = async (
+//   userId: string,
+//   amount: number,
+//   currencyChain: string,
+//   address: string
+// ) => {
+//   try {
+//     const foundUser = await UserModel.findById(userId);
+//     if (!foundUser) {
+//       return { success: false, message: "User does not exist." };
+//     }
+//     const foundCurrencyChain = await CurrencyChainModel.findById(currencyChain);
+//     if (!foundCurrencyChain) {
+//       return { success: false, message: "Currency chain does not exist." };
+//     }
+//     const foundWaletAddress = await WalletAddressModel.findOne({
+//       address: new mongoose.Types.ObjectId(address),
+//       currencyChain: foundCurrencyChain._id,
+//     });
+//     if (!foundWaletAddress) {
+//       return { success: false, message: "Address does not exist." };
+//     }
+//     const newRequest = await RequestModel.create({
+//       type: RequestType.DEPOSIT,
+//       user: foundUser._id,
+//       currencyChain: foundCurrencyChain._id,
+//       address: foundWaletAddress._id,
+//       amount,
+//     });
+//     return { success: true, message: "Request created.", data: newRequest };
+//   } catch (error) {
+//     console.error(error);
+//     return { success: false, message: "Something went wrong." };
+//   }
+// };
+
+const listCreatedDepositRequest = async (userId: string) => {
+  const user = await UserModel.findById(userId);
+  if (!user) {
+    return { success: false, message: "User does not exist." };
+  }
+  const requests = await RequestModel.find({
+    user: user._id,
+    type: RequestType.DEPOSIT,
+  });
+  return { success: true, data: requests };
+};
+
 export const userService = {
+  // createDepositRequest,
   getReferralCode,
+  getWalletAddress,
+  listCreatedDepositRequest,
 };

@@ -4,10 +4,10 @@ import { adminController } from "./admin.controller";
 
 const router = express.Router();
 
-// router.get(
-//   "/currency-chain",
-//   AdminAuthorization,
-//   adminController.listCurrencyChain as any
-// );
+router.get(
+  "/currency-chain",
+  AdminAuthorization,
+  adminController.listCurrencyChain
+);
 
 export default router;
