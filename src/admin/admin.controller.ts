@@ -3,6 +3,16 @@ import { adminService } from "./admin.service";
 import mongoose from "mongoose";
 import { RequestStatus } from "../common/enum.common";
 
+const getProfile = async (req: any, res: Response): Promise<any> => {
+  console.log(req["user"]);
+  const result = await adminService.getProfile(req["user"]);
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
+
 const listCurrencyChain = async (req: Request, res: Response): Promise<any> => {
   const result = await adminService.listCurrencyChain();
   if (result.success) {
@@ -143,6 +153,7 @@ const toggleDepositRequestStatus = async (
 export const adminController = {
   addAddressToChain,
   createCurrencyChain,
+  getProfile,
   listCurrencyChain,
   listDepositRequests,
   removeAddressFromChain,

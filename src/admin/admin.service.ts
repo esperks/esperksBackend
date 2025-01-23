@@ -5,6 +5,30 @@ import { RequestModel } from "../user/models/request.model";
 import { RequestStatus, RequestType, WalletTypes } from "../common/enum.common";
 import { WalletModel } from "../user/models/wallet.model";
 import { AdminControlModel } from "./models/adminControls.model";
+import { AdminModel } from "../auth/models/admin.model";
+
+const getProfile = async (adminId: string) => {
+  try {
+    const admin = await AdminModel.findById(adminId).select("-password -__v");
+    if (!admin) {
+      return {
+        success: false,
+        message: "Admin not found.",
+      };
+    }
+    return {
+      success: true,
+      message: "Admin profile",
+      data: admin,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Something went wrong.",
+    };
+  }
+};
 
 const listCurrencyChain = async () => {
   try {
@@ -284,6 +308,7 @@ const distributeCommission = async (percentage: number) => {
 export const adminService = {
   addAddressToChain,
   createCurrencyChain,
+  getProfile,
   listCurrencyChain,
   listDepositRequests,
   removeAddressFromChain,

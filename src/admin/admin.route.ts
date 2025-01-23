@@ -5,6 +5,8 @@ import { addAddressValidation } from "./validations/addAddress.validation";
 
 const router = express.Router();
 
+router.get("/profile", AdminAuthorization, adminController.getProfile);
+
 router.get(
   "/currency-chain",
   AdminAuthorization,
