@@ -32,7 +32,11 @@ const getWalletAddress = async (userId: string, identifier: string) => {
   if (!wallet) {
     return { success: false, message: "Wallet does not exist." };
   } else {
-    return { success: true, address: wallet.address };
+    return {
+      success: true,
+      message: "Wallet address fetched.",
+      address: wallet.address,
+    };
   }
 };
 
@@ -52,7 +56,7 @@ const createDepositRequest = async (
       return { success: false, message: "Currency chain does not exist." };
     }
     const foundWaletAddress = await WalletAddressModel.findOne({
-      address: new mongoose.Types.ObjectId(address),
+      _id: new mongoose.Types.ObjectId(address),
       currencyChain: foundCurrencyChain._id,
     });
     if (!foundWaletAddress) {
@@ -80,7 +84,10 @@ const listCreatedDepositRequest = async (userId: string) => {
   const requests = await RequestModel.find({
     user: user._id,
     type: RequestType.DEPOSIT,
-  });
+  })
+    .populate("user", "_id email")
+    .populate("address", "_id address")
+    .populate("currencyChain", "_id name");
   return { success: true, data: requests };
 };
 

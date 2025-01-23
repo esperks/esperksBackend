@@ -37,30 +37,38 @@ const createCurrencyChain = async (name: string, addresses: Array<string>) => {
         message: "Chain already exists.",
       };
     }
-    const newChain = await CurrencyChainModel.create({ name, addresses });
+    const newChain = await CurrencyChainModel.create({ name });
     let addressIds: Array<mongoose.Types.ObjectId> = [];
-    if (addresses.length) {
-      addresses.forEach(async (address) => {
-        const newAddress = await WalletAddressModel.create({
-          address,
-          currencyChain: newChain._id,
-        });
-        addressIds.push(newAddress._id);
+    for (let i = 0; i < addresses.length; i++) {
+      const addressAlreadyExists = await WalletAddressModel.findOne({
+        address: addresses[i],
+        currencyChain: newChain._id,
       });
-    }
-    if (addressIds.length) {
-      await CurrencyChainModel.findByIdAndUpdate(
-        newChain._id,
+      if (addressAlreadyExists) {
+        return {
+          success: false,
+          message: `Address ${addresses[i]} already exists.`,
+        };
+      }
+      const newAddress = await WalletAddressModel.create({
+        address: addresses[i],
+        currencyChain: newChain._id,
+      });
+      addressIds.push(newAddress._id);
+      await CurrencyChainModel.updateOne(
+        { _id: newChain._id },
         {
-          $set: { addresses: addressIds },
-        },
-        { new: true }
+          $push: { addresses: newAddress._id },
+        }
       );
     }
+    const updatedChain = await CurrencyChainModel.findOne({
+      _id: newChain._id,
+    }).populate("addresses", "_id address");
     return {
       success: true,
       message: "Chain created.",
-      data: newChain,
+      data: updatedChain,
     };
   } catch (error) {
     console.error(error);
@@ -107,7 +115,7 @@ const addAddressToChain = async (chainId: string, address: string) => {
         $push: { addresses: newAddress._id },
       },
       { new: true }
-    );
+    ).populate("addresses", "_id address");
     return {
       success: true,
       message: "Address added to chain.",
@@ -156,7 +164,7 @@ const removeAddressFromChain = async (chainId: string, addressId: string) => {
         $pull: { addresses: addressId },
       },
       { new: true }
-    );
+    ).populate("addresses", "_id address");
     return {
       success: true,
       message: "Address removed from chain.",
@@ -177,8 +185,8 @@ const listDepositRequests = async () => {
       type: RequestType.DEPOSIT,
     })
       .populate("user", "_id email")
-      // .populate("currencyChain")
-      .populate("address", "_id address");
+      .populate("address", "_id address")
+      .populate("currencyChain", "_id name");
     return {
       success: true,
       message: "Deposit request list",
@@ -221,7 +229,11 @@ const toggleDepositRequestStatus = async (
           $set: { status },
         },
         { new: true }
-      );
+      )
+        .populate("user", "_id email")
+        .populate("address", "_id address")
+        .populate("currencyChain", "_id name");
+
       if (!updatedRequest) {
         return {
           success: false,

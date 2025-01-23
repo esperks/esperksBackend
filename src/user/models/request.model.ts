@@ -19,6 +19,7 @@ const RequestSchema = new Schema({
   },
   address: {
     type: String,
+    ref: "WalletAddress",
     required: true,
   },
   status: {

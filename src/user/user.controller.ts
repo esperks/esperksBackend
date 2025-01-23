@@ -24,12 +24,14 @@ const getWalletAddress = async (req: any, res: Response): Promise<any> => {
     return res.status(401).json({ message: "No authorization provided." });
   } else {
     const identifier = req.params.identifier;
-    if (!Object.keys(WalletTypes).includes(identifier)) {
+    if (!Object.values(WalletTypes).includes(identifier)) {
       return res.status(400).json({ message: "Invalid wallet type." });
     }
     const result = await userService.getWalletAddress(userId, identifier);
     if (result.success) {
-      return res.status(200).json({ address: result.address });
+      return res
+        .status(200)
+        .json({ address: result.address, message: result.message });
     } else {
       return res.status(400).json({ message: result.message });
     }
@@ -116,9 +118,9 @@ const getProfile = async (req: any, res: Response): Promise<any> => {
 };
 export const userController = {
   createDepositRequest,
+  getProfile,
   getReferralCode,
   getWalletAddress,
   listCurrencyChain,
   listCreatedDepositRequest,
-  getProfile,
 };

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { adminService } from "./admin.service";
 import mongoose from "mongoose";
+import { RequestStatus } from "../common/enum.common";
 
 const listCurrencyChain = async (req: Request, res: Response): Promise<any> => {
   const result = await adminService.listCurrencyChain();
@@ -48,7 +49,8 @@ const createCurrencyChain = async (
 };
 
 const addAddressToChain = async (req: Request, res: Response): Promise<any> => {
-  const { chainId, address } = req.body;
+  const { chainId } = req.params;
+  const { address } = req.body;
   if (!mongoose.isValidObjectId(chainId)) {
     return res.status(400).json({ message: "Invalid chain id." });
   } else {
@@ -73,16 +75,20 @@ const removeAddressFromChain = async (
   req: Request,
   res: Response
 ): Promise<any> => {
-  const { chainId, addressId } = req.body;
+  const { chainId } = req.params;
+  const { address } = req.body;
   if (!mongoose.isValidObjectId(chainId)) {
     return res.status(400).json({ message: "Invalid chain id." });
   } else {
-    if (!mongoose.isValidObjectId(addressId)) {
+    if (!address) {
+      return res.status(400).json({ message: "Address id is required." });
+    }
+    if (!mongoose.isValidObjectId(address)) {
       return res.status(400).json({ message: "Invalid address id." });
     } else {
       const result = await adminService.removeAddressFromChain(
         chainId,
-        addressId
+        address
       );
       if (result.success) {
         return res
@@ -107,10 +113,38 @@ const listDepositRequests = async (
   }
 };
 
+const toggleDepositRequestStatus = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  const { requestId } = req.params;
+  const { status } = req.body;
+  if (!mongoose.isValidObjectId(requestId)) {
+    return res.status(400).json({ message: "Invalid request id." });
+  } else {
+    if (!Object.values(RequestStatus).includes(status)) {
+      return res.status(400).json({ message: "Invalid status." });
+    } else {
+      const result = await adminService.toggleDepositRequestStatus(
+        requestId,
+        status
+      );
+      if (result.success) {
+        return res
+          .status(200)
+          .json({ message: result.message, data: result.data });
+      } else {
+        return res.status(400).json({ message: result.message });
+      }
+    }
+  }
+};
+
 export const adminController = {
+  addAddressToChain,
   createCurrencyChain,
   listCurrencyChain,
   listDepositRequests,
-  addAddressToChain,
   removeAddressFromChain,
+  toggleDepositRequestStatus,
 };

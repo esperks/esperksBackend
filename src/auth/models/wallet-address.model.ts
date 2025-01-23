@@ -7,7 +7,7 @@ const WalletAddressSchema = new Schema({
   },
   address: {
     type: String,
-    unique: true,
+    // unique: true,
     required: true,
   },
   currencyChain: {

@@ -327,7 +327,7 @@ const adminLogin = async (data: LoginValidation) => {
       if (!passwordMatch) {
         return { success: false, message: "Invalid password." };
       } else {
-        const token = await signJwt(admin.id, Roles.ADMIN, "");
+        const token = await signJwt(admin.id, Roles.ADMIN, TokenTypes.ACCESS);
         return { success: true, message: "Login successful.", token };
       }
     }
