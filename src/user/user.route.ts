@@ -10,5 +10,6 @@ router.get(
   UserAuthorization,
   userController.getWalletAddress
 );
+router.get("/profile", UserAuthorization, userController.getProfile);
 // router.post("/deposit-request", UserAuthorization, userController.createDepositRequest);
 export default router;

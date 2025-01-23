@@ -84,9 +84,17 @@ const listCreatedDepositRequest = async (userId: string) => {
   return { success: true, data: requests };
 };
 
+const getProfile = async (userId: string) => {
+  const user = await UserModel.findById(userId).select("-password");
+  if (!user) {
+    return { success: false, message: "User does not exist." };
+  }
+  return { success: true, data: user, message: "User profile fetched." };
+};
 export const userService = {
   createDepositRequest,
   getReferralCode,
   getWalletAddress,
   listCreatedDepositRequest,
+  getProfile,
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
 import { WalletTypes } from "../common/enum.common";
-// import { adminService } from "../admin/admin.service";
+import { adminService } from "../admin/admin.service";
 import mongoose from "mongoose";
 
 const getReferralCode = async (req: any, res: Response): Promise<any> => {
@@ -36,55 +36,55 @@ const getWalletAddress = async (req: any, res: Response): Promise<any> => {
   }
 };
 
-// const listCurrencyChain = async (req: any, res: Response): Promise<any> => {
-//   const userId = req.user;
-//   if (!userId) {
-//     return res.status(401).json({ message: "No authorization provided." });
-//   }
-//   const result = await adminService.listCurrencyChain();
-//   if (result.success) {
-//     return res.status(200).json({ message: result.message, data: result.data });
-//   } else {
-//     return res.status(400).json({ message: result.message });
-//   }
-// };
+const listCurrencyChain = async (req: any, res: Response): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const result = await adminService.listCurrencyChain();
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
 
-// const createDepositRequest = async (req: any, res: Response): Promise<any> => {
-//   const userId = req.user;
-//   if (!userId) {
-//     return res.status(401).json({ message: "No authorization provided." });
-//   }
-//   const { amount, currencyChain, address } = req.body;
-//   if (!amount) {
-//     return res.status(400).json({ message: "Amount is required." });
-//   }
-//   if (typeof amount !== "number") {
-//     return res.status(400).json({ message: "Amount must be a number." });
-//   }
-//   if (!currencyChain) {
-//     return res.status(400).json({ message: "Currency chain is required." });
-//   }
-//   if (!mongoose.isValidObjectId(currencyChain)) {
-//     return res.status(400).json({ message: "Invalid Currency chain id" });
-//   }
-//   if (!address) {
-//     return res.status(400).json({ message: "Address is required." });
-//   }
-//   if (!mongoose.isValidObjectId(address)) {
-//     return res.status(400).json({ message: "Invalid address id." });
-//   }
-//   const result = await userService.createDepositRequest(
-//     userId,
-//     amount,
-//     currencyChain,
-//     address
-//   );
-//   if (result.success) {
-//     return res.status(200).json({ message: result.message, data: result.data });
-//   } else {
-//     return res.status(400).json({ message: result.message });
-//   }
-// };
+const createDepositRequest = async (req: any, res: Response): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const { amount, currencyChain, address } = req.body;
+  if (!amount) {
+    return res.status(400).json({ message: "Amount is required." });
+  }
+  if (typeof amount !== "number") {
+    return res.status(400).json({ message: "Amount must be a number." });
+  }
+  if (!currencyChain) {
+    return res.status(400).json({ message: "Currency chain is required." });
+  }
+  if (!mongoose.isValidObjectId(currencyChain)) {
+    return res.status(400).json({ message: "Invalid Currency chain id" });
+  }
+  if (!address) {
+    return res.status(400).json({ message: "Address is required." });
+  }
+  if (!mongoose.isValidObjectId(address)) {
+    return res.status(400).json({ message: "Invalid address id." });
+  }
+  const result = await userService.createDepositRequest(
+    userId,
+    amount,
+    currencyChain,
+    address
+  );
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
 
 const listCreatedDepositRequest = async (
   req: any,
@@ -101,10 +101,24 @@ const listCreatedDepositRequest = async (
     return res.status(400).json({ message: result.message });
   }
 };
+
+const getProfile = async (req: any, res: Response): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const result = await userService.getProfile(userId);
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
 export const userController = {
-  // createDepositRequest,
+  createDepositRequest,
   getReferralCode,
   getWalletAddress,
-  // listCurrencyChain,
+  listCurrencyChain,
   listCreatedDepositRequest,
+  getProfile,
 };
