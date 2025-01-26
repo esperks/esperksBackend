@@ -26,26 +26,33 @@ export const signJwt = async (
 
 export const verifyJwt = async (token: string) => {
   // return jwt.verify(token, process.env.JWT_SECRET || "");
-  const tokenDoc = await TokenModel.findOne({ token });
-  if (!tokenDoc) {
-    return {
-      success: false,
-      message: "Invalid token",
-    };
-  } else {
-    const jwtVerified = jwt.verify(token, process.env.JWT_SECRET || "");
-    if (jwtVerified) {
-      return {
-        success: true,
-        message: "Token verified",
-        data: jwtVerified,
-      };
-    } else {
+  try {
+    const tokenDoc = await TokenModel.findOne({ token });
+    if (!tokenDoc) {
       return {
         success: false,
         message: "Invalid token",
       };
+    } else {
+      const jwtVerified = jwt.verify(token, process.env.JWT_SECRET || "");
+      if (jwtVerified) {
+        return {
+          success: true,
+          message: "Token verified",
+          data: jwtVerified,
+        };
+      } else {
+        return {
+          success: false,
+          message: "Invalid token",
+        };
+      }
     }
+  } catch (error) {
+    return {
+      success: false,
+      message: "Token Expired",
+    };
   }
 };
 

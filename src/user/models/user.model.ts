@@ -2,6 +2,10 @@ import mongoose, { Schema } from "mongoose";
 import { Roles } from "../../enum/auth.enum";
 
 const userSchema = new Schema({
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   role: {
     type: String,
     enum: Object.values(Roles),
@@ -43,6 +47,10 @@ const userSchema = new Schema({
   referral: {
     type: mongoose.Types.ObjectId,
     ref: "Referral",
+  },
+  referredBy: {
+    type: mongoose.Types.ObjectId,
+    ref: "User",
   },
   earningWallet: {
     type: mongoose.Types.ObjectId,

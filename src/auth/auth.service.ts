@@ -83,13 +83,16 @@ const registerUser = async (data: RegisterValidation) => {
       const salt = process.env.BCRYPT_SALT || "10";
       user.password = await bcrypt.hash(data.password, parseInt(salt));
       user.phone = data.phone;
-      const createdUser = await user.save();
       if (data.referral) {
-        await ReferralModel.updateOne(
+        const updatedReferralBy = await ReferralModel.findOneAndUpdate(
           { code: data.referral },
           { $inc: { redeemCount: 1 }, $push: { redeemedBy: user._id } }
         );
+        if (updatedReferralBy) {
+          user.referredBy = updatedReferralBy?.user;
+        }
       }
+      const createdUser = await user.save();
       const investmentWallet = await WalletModel.create({
         user: createdUser._id,
         type: WalletTypes.INVESTMENT,

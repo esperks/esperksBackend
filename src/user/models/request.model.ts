@@ -22,6 +22,10 @@ const RequestSchema = new Schema({
     ref: "WalletAddress",
     required: true,
   },
+  thirdPartyAddress: {
+    type: String,
+    required: true
+  },
   status: {
     type: String,
     enum: Object.values(RequestStatus),

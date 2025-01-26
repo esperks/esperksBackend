@@ -38,6 +38,60 @@ const getWalletAddress = async (req: any, res: Response): Promise<any> => {
   }
 };
 
+const addThirdPartyAddress = async (req: any, res: Response): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  } else {
+    const { address } = req.body;
+    if (!address) {
+      return res.status(400).json({ message: "Address is required." });
+    }
+    const result = await userService.addThirdPartyAddress(userId, address);
+    if (result.success) {
+      return res
+        .status(200)
+        .json({ message: result.message, data: result.data });
+    } else {
+      return res.status(400).json({ message: result.message });
+    }
+  }
+};
+
+const listThirdPartyAddress = async (req: any, res: Response): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const result = await userService.listThirdPartyAddress(userId);
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
+
+const removeThirdPartyAddress = async (
+  req: any,
+  res: Response
+): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  } else {
+    const { addressId } = req.params;
+    if (!mongoose.isValidObjectId(addressId)) {
+      return res.status(400).json({ message: "Invalid address id." });
+    }
+    const result = await userService.removeThirdPartyAddress(userId, addressId);
+    if (result.success) {
+      return res.status(200).json({ message: result.message });
+    } else {
+      return res.status(400).json({ message: result.message });
+    }
+  }
+};
+
 const listCurrencyChain = async (req: any, res: Response): Promise<any> => {
   const userId = req.user;
   if (!userId) {
@@ -56,7 +110,7 @@ const createDepositRequest = async (req: any, res: Response): Promise<any> => {
   if (!userId) {
     return res.status(401).json({ message: "No authorization provided." });
   }
-  const { amount, currencyChain, address } = req.body;
+  const { amount, currencyChain, address, thirdPartyAddress } = req.body;
   if (!amount) {
     return res.status(400).json({ message: "Amount is required." });
   }
@@ -75,11 +129,20 @@ const createDepositRequest = async (req: any, res: Response): Promise<any> => {
   if (!mongoose.isValidObjectId(address)) {
     return res.status(400).json({ message: "Invalid address id." });
   }
+  if (!thirdPartyAddress) {
+    return res
+      .status(400)
+      .json({ message: "Third party address is required." });
+  }
+  if (!mongoose.isValidObjectId(thirdPartyAddress)) {
+    return res.status(400).json({ message: "Invalid third party address id." });
+  }
   const result = await userService.createDepositRequest(
     userId,
     amount,
     currencyChain,
-    address
+    address,
+    thirdPartyAddress
   );
   if (result.success) {
     return res.status(200).json({ message: result.message, data: result.data });
@@ -104,6 +167,64 @@ const listCreatedDepositRequest = async (
   }
 };
 
+const createWithdrawalRequest = async (
+  req: any,
+  res: Response
+): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const { amount, currencyChain, thirdPartyAddress } = req.body;
+  if (!amount) {
+    return res.status(400).json({ message: "Amount is required." });
+  }
+  if (typeof amount !== "number") {
+    return res.status(400).json({ message: "Amount must be a number." });
+  }
+  if (!currencyChain) {
+    return res.status(400).json({ message: "Currency chain is required." });
+  }
+  if (!mongoose.isValidObjectId(currencyChain)) {
+    return res.status(400).json({ message: "Invalid Currency chain id" });
+  }
+  if (!thirdPartyAddress) {
+    return res
+      .status(400)
+      .json({ message: "Third party address is required." });
+  }
+  if (!mongoose.isValidObjectId(thirdPartyAddress)) {
+    return res.status(400).json({ message: "Invalid third party address id." });
+  }
+  const result = await userService.createWithdrawalRequest(
+    userId,
+    amount,
+    currencyChain,
+    thirdPartyAddress
+  );
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
+
+const listCreatedWithdrawalRequest = async (
+  req: any,
+  res: Response
+): Promise<any> => {
+  const userId = req.user;
+  if (!userId) {
+    return res.status(401).json({ message: "No authorization provided." });
+  }
+  const result = await userService.listCreatedWithdrawalRequest(userId);
+  if (result.success) {
+    return res.status(200).json({ message: result.message, data: result.data });
+  } else {
+    return res.status(400).json({ message: result.message });
+  }
+};
+
 const getProfile = async (req: any, res: Response): Promise<any> => {
   const userId = req.user;
   if (!userId) {
@@ -116,11 +237,17 @@ const getProfile = async (req: any, res: Response): Promise<any> => {
     return res.status(400).json({ message: result.message });
   }
 };
+
 export const userController = {
+  addThirdPartyAddress,
   createDepositRequest,
+  createWithdrawalRequest,
   getProfile,
   getReferralCode,
   getWalletAddress,
   listCurrencyChain,
   listCreatedDepositRequest,
+  listCreatedWithdrawalRequest,
+  listThirdPartyAddress,
+  removeThirdPartyAddress,
 };
